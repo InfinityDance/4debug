@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Правила студии — ИНФИНИТИ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ===== ВСЕ СТИЛИ ОСТАЮТСЯ ТЕМИ ЖЕ, ЧТО И В index.html ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: #fdf6f0;
+            color: #5a4e4e;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(2px);
+            padding: 2rem 2rem 3rem;
+            border-radius: 40px;
+            box-shadow: 0 12px 30px rgba(200, 160, 160, 0.15);
+            overflow-x: auto;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+            border-bottom: 2px dashed #e8d5d5;
+            padding-bottom: 1.5rem;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo-icon {
+            font-size: 2.8rem;
+            color: #d4a5a5;
+        }
+        .studio-name h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #c27e7e;
+            letter-spacing: 1px;
+        }
+        .studio-name p {
+            font-size: 0.9rem;
+            color: #b29797;
+            font-style: italic;
+        }
+
+        /* ===== НОВОЕ МЕНЮ ===== */
+        .main-nav {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .main-nav a {
+            text-decoration: none;
+            color: #7a5f5f;
+            font-weight: 500;
+            padding: 0.3rem 0;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+        }
+        .main-nav a:hover {
+            border-bottom-color: #d4a5a5;
+            color: #c27e7e;
+        }
+        .main-nav a.active {
+            border-bottom-color: #d4a5a5;
+            color: #c27e7e;
+        }
+
+        .tagline {
+            background: #e2d5d5;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            color: #7a5f5f;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* ===== СТИЛИ ДЛЯ СТРАНИЦЫ ПРАВИЛ ===== */
+        .rules-section {
+            margin-bottom: 3rem;
+        }
+        .rules-section .section-title {
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: #c27e7e;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .rules-section .section-title i {
+            font-size: 1.8rem;
+            color: #a8d5ba;
+        }
+
+        .rules-content {
+            background: #ffffffd9;
+            padding: 2rem 2.5rem;
+            border-radius: 30px;
+            box-shadow: 0 6px 18px rgba(190, 150, 150, 0.08);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+        .rules-content ul {
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        .rules-content li {
+            margin-bottom: 0.5rem;
+        }
+        .rules-content h3 {
+            color: #c27e7e;
+            margin: 1.5rem 0 0.5rem;
+        }
+        .rules-content p {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-note {
+            margin-top: 2.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #b8a8a8;
+            border-top: 1px solid #eee2e2;
+            padding-top: 1.5rem;
+        }
+        .footer-note i {
+            color: #d4a5a5;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 1.5rem 0.5rem;
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+            .tagline {
+                align-self: flex-start;
+            }
+            .studio-name h1 {
+                font-size: 1.6rem;
+            }
+            .main-nav {
+                margin-top: 0.5rem;
+                gap: 1rem;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+            .rules-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-dance"></i></div>
+            <div class="studio-name">
+                <h1>ИНФИНИТИ</h1>
+                <p>студия танцев</p>
+            </div>
+        </div>
+        <!-- НАВИГАЦИОННОЕ МЕНЮ -->
+        <nav class="main-nav">
+            <a href="index.html">Расписание</a>
+            <a href="rules.html" class="active">Правила</a>
+        </nav>
+        <div class="tagline">
+            <i class="fas fa-calendar-alt" style="margin-right: 0.5rem;"></i> Запишись сегодня
+        </div>
+    </header>
+
+    <section class="rules-section">
+        <div class="section-title">
+            <i class="fas fa-book-open"></i> Правила студии
+        </div>
+        <div class="rules-content">
+            <h3>1. Общие положения</h3>
+            <p>Наша студия — пространство уважения и комфорта для всех. Мы просим вас внимательно ознакомиться с правилами.</p>
+
+            <h3>2. Запись и посещение</h3>
+            <ul>
+                <li>Запись на занятия осуществляется через форму на сайте или у администратора.</li>
+                <li>Если Вы не можете прийти, отмените запись не менее чем за 8 часов до начала занятия.</li>
+                <li>Опаздывать более чем на 10 минут не рекомендуется — Вы пропускаете разминку.</li>
+            </ul>
+
+            <h3>3. Оплата</h3>
+            <ul>
+                <li>Оплата производится на ресепшене.</li>
+                <li>Действуют абонементы и разовые посещения.</li>
+                <li>Возврат средств возможен по согласованию с администрацией.</li>
+            </ul>
+
+            <h3>4. Этика и поведение</h3>
+            <ul>
+                <li>Уважайте преподавателей и других учеников.</li>
+                <li>Не используйте мобильные телефоны во время занятия (кроме экстренных случаев).</li>
+                <li>Соблюдайте чистоту: переодевайтесь в раздевалке, используйте сменную обувь.</li>
+            </ul>
+
+            <h3>5. Безопасность</h3>
+            <ul>
+                <li>Занятия проводятся на безопасном покрытии. Выполняйте упражнения в соответствии с указаниями тренера.</li>
+                <li>При наличии травм или противопоказаний предупредите преподавателя.</li>
+                <li>В случае чрезвычайной ситуации следуйте инструкциям персонала.</li>
+            </ul>
+
+            <p style="margin-top: 1.5rem; font-style: italic; color: #b29797;">
+                Администрация студии оставляет за собой право вносить изменения в правила. Актуальная версия всегда опубликована на сайте.
+            </p>
+        </div>
+    </section>
+
+    <div class="footer-note">
+        <i class="fas fa-arrow-right"></i> Сделано с душой для танцоров
+        <span style="margin:0 0.5rem;">•</span> <i class="fas fa-music"></i>
+    </div>
+
+</div>
+
+</body>
+</html>
