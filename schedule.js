@@ -1,124 +1,87 @@
 // schedule.js
 
-// URL веб-приложения
-const API_URL = 'https://script.google.com/macros/s/AKfycbx6SZHa0uJM5IJfyxRxG913TEV_RPhcjspW-7Q9dkE9mLFQsLvAlDy_ThWqv4FwJDG7/exec';
+// Импортируем библиотеку Supabase
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// ===== Преобразование времени =====
-function formatTimeFromDate(dateString) {
-    if (!dateString) return '';
-    if (/^\d{2}:\d{2}$/.test(dateString)) return dateString;
-    try {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return '';
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
-    } catch (e) {
-        return '';
-    }
-}
+// ===== ВСТАВЬТЕ СЮДА ВАШИ ДАННЫЕ ИЗ SUPABASE =====
+// Project URL
+const SUPABASE_URL = 'https://tfsbxmeodpvnufbfznwr.supabase.co/rest/v1/';
+// anon public key
+const SUPABASE_ANON_KEY = 'sb_publishable_InwdKgbZv911V5rtxw_UjA_0tz0dyGX'; 
+// ====================================================
 
-// ===== Загрузка данных =====
+// Создаем клиент для работы с базой данных
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Список дней недели для заголовков
+const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+// Функция для загрузки расписания из Supabase
 async function loadSchedule() {
     const status = document.getElementById('schedule-status');
     if (status) status.textContent = 'Загрузка...';
 
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
-        const data = await response.json();
-        renderSchedule(data);
-        if (status) status.textContent = '';
-    } catch (error) {
+    // Запрашиваем данные из таблицы schedule, только активные занятия
+    const { data, error } = await supabase
+        .from('schedule')
+        .select('*')
+        .eq('is_active', true)
+        .order('day', { ascending: true });
+
+    if (error) {
         console.error('Ошибка загрузки:', error);
-        if (status) status.textContent = 'Не удалось загрузить расписание. Попробуйте позже.';
+        if (status) status.textContent = 'Не удалось загрузить расписание.';
+        return;
     }
+
+    renderSchedule(data);
+    if (status) status.textContent = '';
 }
 
-// ===== Отрисовка таблицы =====
+// Функция для отрисовки таблицы
 function renderSchedule(data) {
     const tbody = document.querySelector('#dynamic-schedule tbody');
-    if (!tbody) {
-        console.error('Таблица не найдена');
-        return;
-    }
+    if (!tbody) return;
     tbody.innerHTML = '';
 
-    if (!data || data.length === 0) {
-        const row = tbody.insertRow();
-        const cell = row.insertCell();
-        cell.colSpan = 8;
-        cell.textContent = 'Нет данных о занятиях';
-        return;
-    }
-
-    // ---- 1. Автоматические даты текущей недели ----
-    const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    // Автоматические даты текущей недели
     const dateMap = {};
     const today = new Date();
-    const currentDay = today.getDay(); // 0 = вс, 1 = пн, ...
+    const currentDay = today.getDay();
     const monday = new Date(today);
     monday.setDate(today.getDate() - (currentDay === 0 ? 6 : currentDay - 1));
     for (let i = 0; i < 7; i++) {
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
-        const dayNum = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        dateMap[daysOfWeek[i]] = `${dayNum}.${month}`;
+        dateMap[daysOfWeek[i]] = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
     }
 
-    // Обновляем заголовки
-    const dayHeaders = document.querySelectorAll('#dynamic-schedule thead th .date');
-    dayHeaders.forEach((span, index) => {
+    // Обновляем заголовки с датами
+    document.querySelectorAll('#dynamic-schedule thead th .date').forEach((span, index) => {
         const day = daysOfWeek[index];
-        if (day && dateMap[day]) {
-            span.textContent = dateMap[day];
-        }
+        if (day && dateMap[day]) span.textContent = dateMap[day];
     });
 
-    // ---- 2. Построение карты занятий с фильтром Active ----
+    // Строим карту занятий для быстрого доступа
     const lessonMap = {};
     data.forEach(item => {
-        // Проверка Active (если колонка существует)
-        const active = item.Active !== undefined ? item.Active : item.active;
-        if (active !== undefined) {
-            // Если Active = false, 'FALSE', 'false' или пусто – пропускаем
-            if (active === false || active === 'FALSE' || active === 'false' || active === '') {
-                return;
-            }
-        }
-
-        const day = item.Day || item.day || '';
-        let time = '';
-        if (item.Time) {
-            time = formatTimeFromDate(item.Time);
-        } else if (item.time) {
-            time = formatTimeFromDate(item.time);
-        }
-        if (!day || !time) return;
-
-        const key = `${day}|${time}`;
+        const key = `${item.day}|${item.time}`;
         lessonMap[key] = {
-            lesson: item.Lesson || item.lesson || '',
-            teacher: item.Teacher || item.teacher || '',
-            booked: item.Booked || item.booked || 0,
-            total: item.Total || item.total || 10
+            lesson: item.lesson,
+            teacher: item.teacher_id || '',
+            booked: item.booked_spots,
+            total: item.total_spots,
+            id: item.id
         };
     });
 
-    // ---- 3. Генерация строк таблицы ----
-    const times = [];
+    // Создаём строки таблицы (слоты с 09:00 до 21:00)
     for (let hour = 9; hour <= 21; hour++) {
-        const h = String(hour).padStart(2, '0');
-        times.push(`${h}:00`);
-    }
-
-    times.forEach(time => {
+        const time = `${String(hour).padStart(2, '0')}:00`;
         const row = tbody.insertRow();
         const timeCell = row.insertCell();
         timeCell.className = 'time-col';
-        const nextHour = String(Number(time.split(':')[0]) + 1).padStart(2, '0');
-        timeCell.textContent = `${time} – ${nextHour}:00`;
+        timeCell.textContent = `${time} – ${String(hour + 1).padStart(2, '0')}:00`;
 
         daysOfWeek.forEach(day => {
             const cell = row.insertCell();
@@ -137,8 +100,56 @@ function renderSchedule(data) {
                 cell.textContent = '—';
             }
         });
-    });
+    }
 }
 
-// ===== Запуск =====
+// Функция для записи на занятие
+async function updateBooking(day, time) {
+    // 1. Ищем занятие по дню и времени
+    const { data: scheduleData, error: findError } = await supabase
+        .from('schedule')
+        .select('id, booked_spots, total_spots')
+        .eq('day', day)
+        .eq('time', time)
+        .single();
+
+    if (findError || !scheduleData) {
+        alert('❌ Занятие не найдено');
+        return;
+    }
+
+    // 2. Проверяем, есть ли свободные места
+    if (scheduleData.booked_spots >= scheduleData.total_spots) {
+        alert('❌ Нет свободных мест');
+        return;
+    }
+
+    // 3. Создаем запись в таблице bookings (нужна авторизация)
+    const { error: bookingError } = await supabase
+        .from('bookings')
+        .insert({ schedule_id: scheduleData.id });
+
+    if (bookingError) {
+        console.error('Ошибка записи:', bookingError);
+        alert('❌ Не удалось записаться. Возможно, вы уже записаны.');
+        return;
+    }
+
+    // 4. Увеличиваем количество занятых мест
+    const { error: updateError } = await supabase
+        .from('schedule')
+        .update({ booked_spots: scheduleData.booked_spots + 1 })
+        .eq('id', scheduleData.id);
+
+    if (updateError) {
+        console.error('Ошибка обновления:', updateError);
+        alert('❌ Ошибка при обновлении мест');
+        return;
+    }
+
+    alert('✅ Вы успешно записаны!');
+    loadSchedule(); // Обновляем таблицу
+}
+
+// Запускаем загрузку расписания при загрузке страницы
 document.addEventListener('DOMContentLoaded', loadSchedule);
